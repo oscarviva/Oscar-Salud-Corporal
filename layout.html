@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscar Salud Corporal</title> <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #111;
+            color: #eee;
+        }
+
+        .container {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #ddd;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #bbb;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 12px);
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #444;
+            color: #eee;
+        }
+
+        button {
+            background-color: #555;
+            color: #eee;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #777;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #555;
+            background-color: #444;
+            border-radius: 4px;
+            color: #eee;
+        }
+
+        #responseText {
+            width: 100%;
+            height: 200px;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            resize: vertical;
+            background-color: #444;
+            color: #eee;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .search-container input[type="text"] {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .search-container button {
+            background-color: #777;
+        }
+
+        .search-container button:hover {
+            background-color: #999;
+        }
+
+        #agendarCitaForm {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #222;
+        }
+
+        #agendarCitaForm h2 {
+            color: #ddd;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .cita-input-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Oscar Salud Corporal</h1> <div class="search-container">
+            <label for="cedulaInput">Buscar Cédula (10 dígitos):</label>
+            <input type="text" id="cedulaInput" maxlength="10" placeholder="Ingrese cédula" />
+            <button id="buscarButton">Buscar</button>
+        </div>
+
+        <div class="input-group">
+            <label for="NombreText">Nombre:</label>
+            <input type="text" id="NombreText" placeholder="Nombre" disabled />
+        </div>
+
+        <div class="input-group">
+            <label for="ApellidoText">Apellido:</label>
+            <input type="text" id="ApellidoText" placeholder="Apellido" disabled />
+        </div>
+
+        <div class="input-group">
+            <label for="edadInput">Edad:</label>
+            <input type="number" id="edadInput" placeholder="Edad" disabled />
+        </div>
+
+        <div class="input-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+            <input type="text" id="fechaNacimiento" placeholder="Fecha de Nacimiento" disabled />
+        </div>
+
+        <div id="output">
+            <p>Ingrese una cédula y haga clic en el botón Buscar.</p>
+        </div>
+
+        <div class="button-container">
+            <div id="agendarCitaForm">
+                <h2>Agendar Cita</h2>
+                <div class="cita-input-group">
+                    <label for="nombrePaciente">Nombre del Paciente:</label>
+                    <input type="text" id="nombrePaciente" placeholder="Ingrese nombre del paciente" required />
+                </div>
+                <div class="cita-input-group">
+                    <label for="enfermedades">Enfermedades:</label>
+                    <textarea id="enfermedades" placeholder="Ingrese las enfermedades del paciente"></textarea>
+                </div>
+                <button onclick="agendarCita()">Agendar</button>
+                <div id="mensajeAgendado" style="margin-top: 10px; color: limegreen; display: none;">Cita agendada correctamente.</div>
+            </div>
+
+            <div class="search-container">
+                <label for="externalSearch">Buscar en Medically:</label>
+                <input type="text" id="externalSearch" placeholder="Buscar en Medically" />
+                <button id="searchMedically">Buscar</button>
+            </div>
+        </div>
+
+        <br>
+
+        <label for="responseText">Respuesta completa del servidor:</label>
+        <textarea id="responseText" placeholder="Aquí se mostrará la información completa" readonly></textarea>
+    </div>
+
+    <script>
+        // Seleccionar elementos del DOM
+        const cedulaInput = document.getElementById('cedulaInput');
+        const NombreText = document.getElementById('NombreText');
+        const ApellidoText = document.getElementById('ApellidoText');
+        const edadInput = document.getElementById('edadInput');
+        const fechaNacimientoInput = document.getElementById('fechaNacimiento');
+        const responseText = document.getElementById('responseText');
+        const output = document.getElementById('output');
+        const buscarButton = document.getElementById('buscarButton');
+        const searchMedicallyButton = document.getElementById('searchMedically');
+        const externalSearchInput = document.getElementById('externalSearch');
+        const mensajeAgendadoDiv = document.getElementById('mensajeAgendado');
+        const nombrePacienteInput = document.getElementById('nombrePaciente');
+        const enfermedadesTextarea = document.getElementById('enfermedades');
+
+        // Función para calcular la edad actual a partir de la fecha de nacimiento
+        function calcularEdad(fechaNacimientoString) {
+            if (!fechaNacimientoString) {
+                return null;
+            }
+            const fechaNacimiento = new Date(fechaNacimientoString);
+            const hoy = new Date();
+            let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+            const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
+        // Función para enviar solicitud GET con mejor manejo de errores
+        async function sendGetRequest(cedula) {
+            const url = `https://infoplacas.herokuapp.com/https://prueba.onlineciber.com/app/cedula.php?id=${cedula}`;
+
+            try {
+                const response = await fetch(url, { method: 'GET', mode: 'cors' });
+
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+                }
+
+                const textResponse = await response.text();
+
+                // Verificar si la respuesta no está vacía
+                if (!textResponse) {
+                    throw new Error('La respuesta del servidor está vacía.');
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(textResponse);
+                    responseText.value = JSON.stringify(data, null, 4);
+                } catch (jsonError) {
+                    throw new Error('Error al analizar JSON: ' + jsonError.message);
+                }
+
+                // Asignar los valores de nombre, apellido, edad y fecha de nacimiento
+                if (data && data.nombres && data.apellidos && data.fechaNacimiento) {
+                    NombreText.value = data.nombres;
+                    ApellidoText.value = data.apellidos;
+                    fechaNacimientoInput.value = data.fechaNacimiento;
+                    const edadCalculada = calcularEdad(data.fechaNacimiento);
+                    edadInput.value = edadCalculada !== null ? edadCalculada : 'No disponible';
+                    output.innerHTML = `<p style="color: limegreen;">Información encontrada.</p>`;
+                } else {
+                    NombreText.value = '';
+                    ApellidoText.value = '';
+                    edadInput.value = '';
+                    fechaNacimientoInput.value = '';
+                    output.innerHTML = `<p style="color: orange;">No se encontraron datos completos para esta cédula.</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                NombreText.value = '';
+                ApellidoText.value = '';
+                edadInput.value = '';
+                fechaNacimientoInput.value = '';
+                output.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                responseText.value = '';
+            }
+        }
+
+        // Función que se ejecuta cuando se hace clic en el botón de búsqueda de cédula
+        function handleBuscarClick() {
+            const cedula = cedulaInput.value.trim();
+            if (cedula.length === 10 && !isNaN(cedula)) {
+                sendGetRequest(cedula);
+            } else {
+                output.innerHTML = `<p style="color: red;">Por favor ingrese una cédula válida de 10 dígitos.</p>`;
+                NombreText.value = '';
+                ApellidoText.value = '';
+                edadInput.value = '';
+                fechaNacimientoInput.value = '';
+                responseText.value = '';
+            }
+        }
+
+        // Función que se ejecuta cuando se hace clic en el botón de búsqueda en Medically
+        function handleSearchMedicallyClick() {
+            const searchTerm = externalSearchInput.value.trim();
+            if (searchTerm) {
+                window.open(`https://mediately.co/es/icd?s=${encodeURIComponent(searchTerm)}`, '_blank');
+            } else {
+                alert('Por favor ingrese un término de búsqueda para Medically.');
+            }
+        }
+
+        // Función para simular el agendamiento de la cita
+        function agendarCita() {
+            const nombre = nombrePacienteInput.value.trim();
+            const enfermedades = enfermedadesTextarea.value.trim();
+
+            if (nombre) {
+                console.log('Cita agendada para:', nombre, 'con enfermedades:', enfermedades);
+                mensajeAgendadoDiv.style.display = 'block';
+                setTimeout(() => {
+                    mensajeAgendadoDiv.style.display = 'none';
+                    nombrePacienteInput.value = '';
+                    enfermedadesTextarea.value = '';
+                }, 3000); // Ocultar el mensaje después de 3 segundos
+            } else {
+                alert('Por favor ingrese el nombre del paciente para agendar la cita.');
+            }
+        }
+
+        // Asociar evento de "click" al botón de búsqueda de cédula
+        buscarButton.addEventListener('click', handleBuscarClick);
+
+        // Asociar evento de "click" al botón de búsqueda en Medically
+        searchMedicallyButton.addEventListener('click', handleSearchMedicallyClick);
+    </script>
+</body>
+
+</html>
